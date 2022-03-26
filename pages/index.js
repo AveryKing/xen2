@@ -1,8 +1,8 @@
-import type { NextPage } from 'next'
+
 import Head from 'next/head'
 import Image from 'next/image'
 
-const Home: NextPage = () => {
+const Home = () => {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
       <Head>
@@ -21,7 +21,7 @@ const Home: NextPage = () => {
         <p className="mt-3 text-2xl">
           Get started by editing{' '}
           <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
+            pages/index.js
           </code>
         </p>
 
