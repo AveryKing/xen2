@@ -14,13 +14,15 @@ const Stories = () => {
     }, [])
 
     return (
-        <div>
+        <div className='flex p-6 space-x-2 bg-white mt-8 border-gray-200 rounded-sm overflow-x-scroll'>
             {stories.map(profile => (
+                <div>
                 <Story
                     key={profile.id}
                     username={profile.username}
                     img={profile.avatar}
                 />
+                </div>
             ))}
         </div>
     );
