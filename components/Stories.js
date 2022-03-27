@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import faker from "@faker-js/faker";
 import Log from "tailwindcss/lib/util/log";
+import Story from "./Story";
 
 const Stories = () => {
     const [stories,setStories] = useState([])
@@ -14,7 +15,13 @@ const Stories = () => {
 
     return (
         <div>
-
+            {stories.map(profile => (
+                <Story
+                    key={profile.id}
+                    username={profile.username}
+                    img={profile.avatar}
+                />
+            ))}
         </div>
     );
 };
