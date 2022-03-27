@@ -5,7 +5,7 @@ const posts = [
     {
         id:'123',
         username:'avery',
-        userImage: '',
+        userImage: 'https://avatars.githubusercontent.com/u/76629826?v=4',
         image: '',
         message: 'hello world!'
 
