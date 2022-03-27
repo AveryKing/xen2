@@ -1,6 +1,6 @@
 # Instagram Clone
 This project a clone of [Instagram](https://instagram.com) that I created using React/Next.js, Node.js, Express, and PostgreSQL. <br/>
-[Click here to view a live demo](#)
+[Click here to view a live demo](https://instagram-clone-rho-snowy.vercel.app/)
 
 ---
 Features
