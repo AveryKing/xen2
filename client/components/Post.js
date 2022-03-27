@@ -39,11 +39,19 @@ const Post = ({username, id, userImage,message,image}) => {
             </div>
 
             {/* caption */ }
-            <p className='p-5 truncate'>
-                <span>{username}</span>
+            <p className='p-5 items-center flex truncate'>
+                <span className='mr-2 font-bold'>{username}</span>
                 {message}
             </p>
 
+            {/* input */}
+            <form className='flex items-center p-4'>
+                <EmojiHappyIcon className='h-7' />
+                <input type="text"
+                placeholder='Add a comment...'
+                       className='border-none flex-1 outline-none focus:ring-0'/>
+                <button className='font-semibold text-blue-400'>Post</button>
+            </form>
 
         </div>
     );
