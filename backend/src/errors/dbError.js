@@ -1,4 +1,6 @@
-const dbError = (error,req,res) => {
+const dbError = (error,res) => {
     console.error(error);
-    res.status(500).json({error:`code ${error.code}`});
+    res.status(500).json({error});
 }
+
+module.exports = dbError;

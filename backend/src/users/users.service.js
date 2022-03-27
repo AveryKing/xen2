@@ -14,7 +14,15 @@ const create = () => {
     });
 }
 
+// Retrieves a user's data from database
+const read = (id) => {
+    return knex('users')
+        .select('*')
+        .where('id','=',id);
+}
+
 module.exports = {
     list,
-    create
+    create,
+    read
 }
