@@ -8,8 +8,4 @@ app.listen(EXPRESS_PORT, () => {
     console.log(`Express running on port ${EXPRESS_PORT}`);
 });
 
-app.get('/', (req,res) => {
-    res.send('instagram backend')
-})
-
 module.exports = app;
