@@ -1,6 +1,5 @@
-const genericError = (error, request, response) => {
-    const { status = 500, message = "Something went wrong!" } = error;
-    response.status(status).json({ error: message });
+const genericError = (req, res) => {
+    res.status(500).json({ error: 'Something went wrong!' });
 }
 
 module.exports = genericError;

@@ -7,10 +7,7 @@ const list = (req,res) => {
         .then(data => {
             res.json({data});
         })
-        .catch(err => {
-            console.error(err);
-            res.json({error: `code ${err.code}`});
-        })
+        .catch(err => dbError(err,req,res))
 }
 
 // Registers a new user
@@ -19,10 +16,7 @@ const create = (req,res) => {
         .then(data => {
             res.json({data});
         })
-        .catch(err => {
-            console.error(err);
-            res.json({error: `code: ${err.code}`});
-        })
+        .catch(err => dbError(err,req,res))
 }
 
 module.exports = {
