@@ -12,8 +12,6 @@ const knex = require('../src/db/connection')
         expect(response.body.error).toContain('not found');
     });
 
-
-
     describe("Account creation", () => {
         test("data required in request.body", async () => {
             const response = await supertest(app)
@@ -51,12 +49,12 @@ const knex = require('../src/db/connection')
             .set('Accept','application/json')
             .send({
                 data: {
-                    username:'username123',
-                    email:'email123456',
-                    password:'password321'
+                    username:'username',
+                    email:'email',
+                    password:'password'
                 }
             });
         console.log(response.body)
         expect(response.body.error).toBeUndefined();
-        expect(response.body.data).toContain('successfully');
+        expect(response.body.message).toContain('successfully');
     })

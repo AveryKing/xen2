@@ -31,8 +31,9 @@ const list = (req, res) => {
 // Registers a new user
 const create = (req, res) => {
     service.create(req.body.data)
-        .then(() => {
-            res.json({message: 'User successfully registered'});
+        .then((data) => {
+            res.json({data})
+          //  res.json({message: 'User successfully registered'});
         })
         .catch(err => dbError(err, res))
 }
