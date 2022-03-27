@@ -1,9 +1,12 @@
 {
-  "name": "backend",
+  "name": "instagram-clone-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "src/node_modules/.bin/nodemon app.js",
+    "migrate": "src/node_modules/.bin/knex migrate:latest",
+    "unmigrate": "src/node_modules/.bin/knex migrate:rollback",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,6 +16,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "knex": "^1.0.4",
+    "nodemon": "^2.0.15",
     "pg": "^8.7.3"
   }
 }

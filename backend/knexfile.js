@@ -5,27 +5,27 @@ module.exports = {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
-      directory: './data/migrations',
+      directory: './src/db/migrations',
     },
-    seeds: { directory: './data/seeds' },
+    seeds: { directory: './src/db/seeds' },
   },
 
   testing: {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
-      directory: './data/migrations',
+      directory: './src/db/migrations',
     },
-    seeds: { directory: './data/seeds' },
+    seeds: { directory: './src/db/seeds' },
   },
 
   production: {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
-      directory: './data/migrations',
+      directory: './src/db/migrations',
     },
-    seeds: { directory: './data/seeds' },
+    seeds: { directory: './src/db/seeds' },
   },
 };
 
