@@ -14,7 +14,7 @@ const Stories = () => {
     }, [])
 
     return (
-        <div className='scrollbar-thin scrollbar-thumb-black flex p-6 space-x-2 bg-white mt-8 border-gray-200 rounded-sm overflow-x-scroll'>
+        <div className='scrollbar-thin scrollbar-thumb-black flex p-6 space-x-2 bg-white mt-8 border-gray-200 rounded-sm overflow-x-scroll rounded-2xl'>
             {stories.map(profile => (
                 <Story
                     key={profile.id}
