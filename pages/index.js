@@ -1,6 +1,7 @@
 import Header from '../components/Header'
 import Head from 'next/head'
 import Image from 'next/image'
+import Feed from "../components/Feed";
 
 const Home = () => {
     return (
