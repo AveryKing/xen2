@@ -1,8 +1,5 @@
-const notFound = (req,res,next) => {
-    next({
-        status:400,
-        message: 'The requested resource was not found'
-    })
+const notFound = (req,res) => {
+    res.status(404).json({error:'The requested resource does not exist'})
 }
 
 module.exports = notFound;
