@@ -1,22 +1,24 @@
 const service = require('./users.service');
 const asyncErrorBoundary = require('../errors/asyncErrorBoundary');
 const dbError = require('../errors/dbError');
-const validateProperties = require('../util/validateProperties');
 
-const validateBodyProperties = (properties) => {
-    return (req, res, next) => {
-        if(!req.body.data) {
-            return next({status:400, message:'Request body data is missing'});
+// Validates request parameters
+const validateParams = (req, res, next) => {
+    const requiredProperties = ['username', 'password', 'email'];
+    const missingParameters = [];
+    const {data} = req.body;
+    if (!data) return res.status(400).json({error: 'Request body is malformed'})
+
+    requiredProperties.forEach(property => {
+        if (!data[property]) {
+            missingParameters.push(property)
         }
-        const {data} = req.body;
-        properties.forEach(property => {
-            if(!data[property]) {
-                return next({status:400, message: `Parameter ${property} is missing`});
-            }
-        })
-        next();
-    }
+    })
+    return missingParameters.length
+        ? res.status(400).json({error: `Missing parameters: ${missingParameters.join(', ')}`})
+        : next();
 }
+
 // Returns a list of all users
 const list = (req, res) => {
     service.list()
@@ -28,7 +30,6 @@ const list = (req, res) => {
 
 // Registers a new user
 const create = (req, res) => {
-    console.log('omg')
     service.create(req.body.data)
         .then(() => {
             res.json({message: 'User successfully registered'});
@@ -41,17 +42,16 @@ const read = (req, res) => {
     const {userId} = req.params;
     service.read(userId)
         .then(data => {
-            console.log('omg')
             res.json({data});
         })
         .catch(err => dbError(err, res))
 }
 
 module.exports = {
-    list: asyncErrorBoundary(list),
+    list: list,
     create: [
-        validateBodyProperties(['username,email,password']),
-        asyncErrorBoundary(create)
+        validateParams,
+        create
     ],
-    read: asyncErrorBoundary(read)
+    read: read
 }
