@@ -3,15 +3,16 @@ import Head from 'next/head'
 import Image from 'next/image'
 
 const Home = () => {
-  return (
-    <div>
-        <Head>
-            <title>Instagram Clone</title>
-            <link rel='icon' href='/favicon.ico' />
-        </Head>
-      <Header />
-    </div>
-  )
+    return (
+        <div>
+            <Head>
+                <title>Instagram Clone</title>
+                <link rel='icon' href='/favicon.ico'/>
+            </Head>
+            <Header/>
+            <Feed/>
+        </div>
+    )
 }
 
 export default Home
