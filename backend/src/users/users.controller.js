@@ -1,6 +1,7 @@
 const service = require('./users.service');
 const asyncErrorBoundary = require('../errors/asyncErrorBoundary');
 const dbError = require('../errors/dbError');
+
 // Returns a list of all users
 const list = (req,res) => {
     service.list()
@@ -12,13 +13,14 @@ const list = (req,res) => {
 
 // Registers a new user
 const create = (req,res) => {
-    service.create()
+    service.create(req.body.data)
         .then(data => {
             res.json({message:'User successfully registered'});
         })
         .catch(err => dbError(err,res))
 }
 
+// Returns a user's data
 const read = (req,res) => {
     const {userId} = req.params;
     service.read(userId)

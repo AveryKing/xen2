@@ -6,12 +6,8 @@ const list = () => {
 }
 
 // Inserts new user into database
-const create = () => {
-    return knex('users').insert({
-        username:'test',
-        email:'test',
-        password:'test'
-    });
+const create = (user) => {
+    return knex('users').insert(user);
 }
 
 // Retrieves a user's data from database
