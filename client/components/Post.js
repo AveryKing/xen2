@@ -29,11 +29,22 @@ const Post = ({username, id, userImage,message,image}) => {
             <img src={image} alt="" className="object-cover w-full" />
 
             {/* Buttons */}
-                <div>
+            <div className='flex justify-between px-4 pt-4 '>
+                <div className='flex space-x-4'>
                     <HeartIcon className='btn'/>
                     <ChatIcon className='btn'/>
-                    <PaperAirplaneIcon class='btn'/>
+                    <PaperAirplaneIcon class='btn rotate-45'/>
                 </div>
+                <BookmarkIcon className='btn'/>
+            </div>
+
+            {/* caption */ }
+            <p className='p-5 truncate'>
+                <span>{username}</span>
+                {message}
+            </p>
+
+
         </div>
     );
 };
