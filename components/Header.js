@@ -48,6 +48,7 @@ const Header = () => {
                     <PlusCircleIcon className='navBtn'/>
                     <UserGroupIcon className='navBtn'/>
                     <HeartIcon className='navBtn'/>
+                    <img src='/img.png' alt='Profile pic' className='h-10 cursor-pointer rounded-full' />
                 </div>
 
             </div>
