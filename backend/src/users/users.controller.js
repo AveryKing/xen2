@@ -42,9 +42,10 @@ const read = (req, res) => {
     const {userId} = req.params;
     service.read(userId)
         .then(data => {
+            if(!data.length) return res.status(404).json({error:'User not found'});
             res.json({data});
         })
-        .catch(err => dbError(err, res))
+        .catch(err => dbError(err, res,404))
 }
 
 module.exports = {

@@ -7,7 +7,7 @@
     "start": "nodemon src/app.js",
     "migrate": "knex migrate:latest",
     "unmigrate": "knex migrate:rollback",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +19,9 @@
     "knex": "^1.0.4",
     "nodemon": "^2.0.15",
     "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "supertest": "^6.2.2"
   }
 }

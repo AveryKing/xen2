@@ -16,3 +16,5 @@ app.use('/users', usersRouter);
 // Error handlers
 app.use(notFound);
 app.use(genericError);
+
+module.exports = app;

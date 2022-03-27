@@ -1,4 +1,6 @@
-const environment = process.env.NODE_ENV || "development";
+require('dotenv').config();
+//const environment = process.env.NODE_ENV || "development";
+const environment = 'testing';
 const config = require("../../knexfile")[environment];
 const knex = require("knex")(config);
 
