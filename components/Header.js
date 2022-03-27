@@ -44,6 +44,7 @@ const Header = () => {
                 <div className='flex items-center justify-end space-x-4'>
                     <HomeIcon className='h-10 w-10'/>
                     <MenuIcon className='h-6 md:hidden cursor-pointer'/>
+                    <PaperAirplaneIcon className='h-10 w-10'/>
                 </div>
 
             </div>
