@@ -32,8 +32,13 @@ const list = (req, res) => {
 const create = (req, res) => {
     service.create(req.body.data)
         .then((data) => {
-            res.json({data})
-          //  res.json({message: 'User successfully registered'});
+            res.json({
+                data: {
+                    message: 'success',
+                    userId: data[0].id
+                }
+            })
+            //  res.json({message: 'User successfully registered'});
         })
         .catch(err => dbError(err, res))
 }
@@ -43,10 +48,10 @@ const read = (req, res) => {
     const {userId} = req.params;
     service.read(userId)
         .then(data => {
-            if(!data.length) return res.status(404).json({error:'User not found'});
+            if (!data.length) return res.status(404).json({error: 'User not found'});
             res.json({data});
         })
-        .catch(err => dbError(err, res,404))
+        .catch(err => dbError(err, res, 404))
 }
 
 module.exports = {
