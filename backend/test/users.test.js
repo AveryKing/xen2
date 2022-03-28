@@ -6,6 +6,17 @@ const service = require('../src/users/users.service');
 const app = makeTestApp('/users', usersRouter);
 const knex = require('../src/db/connection')
 
+/***
+ * Include --runInBand flag when running Jest for tests to pass!
+ */
+
+describe('list', () => {
+    test('GET / returns a list of all users', async () => {
+        const response = await supertest(app).get('/');
+        expect(false).toBe(true);
+    })
+})
+
 describe('read', () => {
     test("GET /:userId returns 404 if user does not exist", async () => {
         const userId = 99999;
@@ -17,6 +28,9 @@ describe('read', () => {
 })
 
 describe("create", () => {
+    beforeEach(async () => {
+        await knex.seed.run();
+    })
     describe('request validation', () => {
         test("data required in request.body", async () => {
             const response = await supertest(app)
@@ -27,7 +41,6 @@ describe("create", () => {
             expect(response.body.error).toBe('Request body is malformed');
         })
 
-        knex.seed.run();
         const requiredParameters = ['email', 'username', 'password'];
         requiredParameters.forEach(parameter => {
             test(`${parameter} parameter required`, async () => {
@@ -50,30 +63,32 @@ describe("create", () => {
         })
     })
 
+    describe("POST to /users creates a new account", () => {
+        let newUser;
+        test('response body includes success message', async () => {
+            const response = await supertest(app)
+                .post('/users/')
+                .set('Accept', 'application/json')
+                .send({
+                    data: {
+                        username: 'username',
+                        email: 'email',
+                        password: 'password'
+                    }
+                });
+            expect(response.body.data).toBeDefined();
+            newUser = await service.read(response.body.data.userId);
+            expect(response.body.error).toBeUndefined();
+            expect(response.body.data.message).toBe('success');
+        })
+        // Validate the new user exists in database
+        test('new user exists in database', async () => {
+            const response = await supertest(app).get(`/users/${newUser[0].id}`);
+            console.log(response.body.data)
+          //  expect(response.body.data[0].id).toBe(newUser[0].id)
+        })
+
+    })
+
 })
 
-describe("POST to /users creates a new account", () => {
-    let newUser;
-    test('response body includes success message', async () => {
-        const response = await supertest(app)
-            .post('/users/')
-            .set('Accept', 'application/json')
-            .send({
-                data: {
-                    username: 'username',
-                    email: 'email',
-                    password: 'password'
-                }
-            });
-        newUser = await service.read(response.body.data.userId);
-        expect(response.body.error).toBeUndefined();
-        expect(response.body.data.message).toBe('success');
-    })
-    // Validate the new user exists in database
-    test('new user exists in database', async () => {
-        const response = await supertest(app).get(`/users/${newUser[0].id}`);
-        expect(response.body.data[0].id).toBe(newUser[0].id)
-    })
-
-
-})
