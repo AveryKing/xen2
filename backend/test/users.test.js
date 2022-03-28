@@ -5,6 +5,7 @@ const makeTestApp = require("./makeTestApp");
 const service = require('../src/users/users.service');
 const app = makeTestApp('/users', usersRouter);
 const knex = require('../src/db/connection')
+const testUserData = require('../src/db/test/config/testUserData')
 
 /***
  * Include --runInBand flag when running Jest for tests to pass!
@@ -12,8 +13,12 @@ const knex = require('../src/db/connection')
 
 describe('list', () => {
     test('GET / returns a list of all users', async () => {
-        const response = await supertest(app).get('/');
-        expect(false).toBe(true);
+        await knex.seed.run()
+        const {body: {data}} = await supertest(app).get('/users');
+        for (let i in testUserData) {
+            expect(data[i].username).toEqual(testUserData[i].username);
+        }
+
     })
 })
 
@@ -28,9 +33,6 @@ describe('read', () => {
 })
 
 describe("create", () => {
-    beforeEach(async () => {
-        await knex.seed.run();
-    })
     describe('request validation', () => {
         test("data required in request.body", async () => {
             const response = await supertest(app)
@@ -66,6 +68,7 @@ describe("create", () => {
     describe("POST to /users creates a new account", () => {
         let newUser;
         test('response body includes success message', async () => {
+            await knex.seed.run();
             const response = await supertest(app)
                 .post('/users/')
                 .set('Accept', 'application/json')
@@ -81,11 +84,12 @@ describe("create", () => {
             expect(response.body.error).toBeUndefined();
             expect(response.body.data.message).toBe('success');
         })
+
         // Validate the new user exists in database
         test('new user exists in database', async () => {
             const response = await supertest(app).get(`/users/${newUser[0].id}`);
-            console.log(response.body.data)
-          //  expect(response.body.data[0].id).toBe(newUser[0].id)
+            expect(response.body.error).toBeUndefined();
+            expect(response.body.data[0].id).toBe(newUser[0].id)
         })
 
     })
