@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require('cors');
 const notFound = require("../src/errors/notFound");
-const genericError = require('../src/errors/genericError');
+const errorHandler = require('../src/errors/errorHandler');
 
 function makeTestApp(path, router) {
     const app = express();
@@ -9,7 +9,7 @@ function makeTestApp(path, router) {
     app.use(cors());
     app.use(path, router);
     app.use(notFound);
-    app.use(genericError);
+    app.use(errorHandler);
     return app;
 }
 

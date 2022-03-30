@@ -1,8 +1,8 @@
-const methodNotAllowed = (req,res,next) => {
+function methodNotAllowed(request, response, next) {
     next({
-        status:405,
-        message: `${req.method} is invalid for ${req.originalUrl}`
-    })
+        status: 405,
+        message: `${request.method} not allowed for ${request.originalUrl}`,
+    });
 }
 
 module.exports = methodNotAllowed;

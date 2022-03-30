@@ -1,14 +1,18 @@
 const service = require('./users.service');
-const asyncErrorBoundary = require('../errors/asyncErrorBoundary');
-const dbError = require('../errors/dbError');
+//const asyncErrorBoundary = require('../errors/asyncErrorBoundary');
+//const dbError = require('../errors/dbError');
 
 // Validates request parameters
-const validateParams = (req, res, next) => {
+const doParamsExist = (req, res, next) => {
     const requiredProperties = ['username', 'password', 'email'];
     const missingParameters = [];
     const {data} = req.body;
-    if (!data) return res.status(400).json({error: 'Request body is malformed'})
-
+    if (!data) {
+        next({
+            status:400,
+            message:'Request body is malformed'
+        })
+    }
     requiredProperties.forEach(property => {
         if (!data[property]) {
             missingParameters.push(property)
@@ -19,17 +23,26 @@ const validateParams = (req, res, next) => {
         : next();
 }
 
+const isUsernameValid = (req,res,next) => {
+    next();
+}
+
 // Returns a list of all users
-const list = (req, res) => {
+const list = (req, res, next) => {
     service.list()
         .then(data => {
             res.json({data});
         })
-        .catch(err => dbError(err, res))
+        .catch(() => {
+            next({
+                status:500,
+                message:'There was an error retrieving users from the database.'
+            })
+        })
 }
 
 // Registers a new user
-const create = (req, res) => {
+const create = (req, res, next) => {
     service.create(req.body.data)
         .then((data) => {
             res.json({
@@ -38,26 +51,41 @@ const create = (req, res) => {
                     userId: data[0].id
                 }
             })
-            //  res.json({message: 'User successfully registered'});
         })
-        .catch(err => dbError(err, res))
+        .catch(() => {
+            next({
+                status:500,
+                message:'There was an error creating your account.'
+            })
+        })
 }
 
 // Returns a user's data
-const read = (req, res) => {
+const read = (req, res, next) => {
     const {userId} = req.params;
     service.read(userId)
         .then(data => {
-            if (!data.length) return res.status(404).json({error: 'User not found'});
+            if (!data.length) {
+                return next({
+                    status:404,
+                    message: 'User not found'
+                });
+            }
             res.json({data});
         })
-        .catch(err => dbError(err, res, 404))
+        .catch(() => {
+            next({
+                status:500,
+                message:'There was an error retrieving this user from the database.'
+            })
+        })
 }
 
 module.exports = {
     list: list,
     create: [
-        validateParams,
+        doParamsExist,
+        isUsernameValid,
         create
     ],
     read: read

@@ -2,7 +2,7 @@ const app = require('./server');
 const cors = require('cors');
 const express = require('express');
 const notFound = require('./errors/notFound');
-const genericError = require('./errors/genericError');
+const genericError = require('./errors/errorHandler');
 
 app.use(express.json())
 app.use(cors());
@@ -15,6 +15,6 @@ app.use('/users', usersRouter);
 
 // Error handlers
 app.use(notFound);
-app.use(genericError);
+app.use(errorHandler);
 
 module.exports = app;

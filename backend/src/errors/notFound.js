@@ -1,5 +1,5 @@
-const notFound = (req,res) => {
-    res.status(404).json({error:'The requested resource does not exist'});
+function notFound(request, response, next) {
+    next({ status: 404, message: `Path not found: ${request.originalUrl}` });
 }
 
 module.exports = notFound;
