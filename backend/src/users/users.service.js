@@ -2,25 +2,26 @@ const knex = require('../db/connection');
 const bcrypt = require('bcryptjs');
 
 // Retrieves all users from database
-const list = () => {
-    return knex('users').select('*');
-}
+const list = () => knex('users').select('*');
 
 // Inserts new user into database
-const create =  (user) => {
-     hashPassword(user.password)
+const create = async (user) => {
+    await hashPassword(user.password)
         .then(hash => {
             user.password = hash;
         })
     return knex('users').insert(user, 'id');
 }
 
-const validatePassword =  (plaintext, hash) => {
-    return bcrypt.compare(plaintext, hash);
+const validatePassword = async (userId, plaintext) => {
+    const res = await knex('users')
+        .select('password')
+        .where('id', '=', userId);
+    return bcrypt.compare(plaintext, res[0].password);
 }
-const hashPassword =  (password) => {
-    return bcrypt.hash(password, 10)
-}
+
+const hashPassword = (password) => bcrypt.hash(password, 10)
+
 // Retrieves a user's data from database
 const read = (id) => {
     return knex('users')
@@ -36,5 +37,7 @@ module.exports = {
     list,
     create,
     isUsernameTaken,
+    hashPassword,
+    validatePassword,
     read
 }

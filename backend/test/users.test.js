@@ -118,13 +118,13 @@ describe("create", () => {
         test('response body includes success message', async () => {
             await knex.seed.run();
             const response = await supertest(app)
-                .post('/users/')
+                .post('/users')
                 .set('Accept', 'application/json')
                 .send({
                     data: {
                         username: 'username',
                         email: 'email@email.com',
-                        password: 'password'
+                        password: 'omg7omg'
                     }
                 });
             expect(response.body.data).toBeDefined();
@@ -138,6 +138,11 @@ describe("create", () => {
             const response = await supertest(app).get(`/users/${newUser[0].id}`);
             expect(response.body.error).toBeUndefined();
             expect(response.body.data[0].id).toBe(newUser[0].id)
+        })
+
+        test('password hashed successfully', async () => {
+            expect(await service.validatePassword(newUser[0].id,'omg7omg')).toBeTruthy();
+
         })
 
     })
