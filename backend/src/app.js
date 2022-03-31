@@ -2,7 +2,7 @@ const app = require('./server');
 const cors = require('cors');
 const express = require('express');
 const notFound = require('./errors/notFound');
-const genericError = require('./errors/errorHandler');
+const errorHandler = require('./errors/errorHandler');
 
 app.use(express.json())
 app.use(cors());
