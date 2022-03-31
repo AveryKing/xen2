@@ -93,6 +93,25 @@ describe("create", () => {
                 })
             }
         })
+
+        describe('password validation', () => {
+            test('password must be at least 6 characters' , async () => {
+                const response = await supertest(app)
+                    .post('/users')
+                    .set('Accept', 'application/json')
+                    .send({
+                        data: {
+                            email:'email@me.com',
+                            username:'username12',
+                            password:'123'
+                        }
+                    })
+                expect(response.status).toBe(400);
+                expect(response.body.error).toBeDefined();
+                expect(response.body.error).toContain('6 characters')
+            })
+        })
+
     })
 
     describe("POST to /users creates a new account", () => {

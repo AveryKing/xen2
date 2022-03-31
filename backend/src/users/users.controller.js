@@ -46,6 +46,16 @@ const isEmailValid = (req,res,next) => {
     next();
 }
 
+const isPasswordValid = (req,res,next) => {
+    if(req.body.data.password.length < 6) {
+        return next({
+            status:400,
+            message:'Your password must be at least 6 characters in length.'
+        })
+    }
+    next();
+}
+
 // Returns a list of all users
 const list = (req, res, next) => {
     service.list()
@@ -118,6 +128,7 @@ module.exports = {
         doParamsExist,
         isUsernameValid,
         isEmailValid,
+        isPasswordValid,
         create
     ],
     read: read
