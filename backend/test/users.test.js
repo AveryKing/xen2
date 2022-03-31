@@ -43,7 +43,6 @@ describe("create", () => {
             })
         })
             describe('username validation', () => {
-                // Username datasets:
                 const usernameDatasets = [
                     {test: 'username cannot be empty', value: ''},
                     {test: 'username cannot be less than 3 characters', value: '12'},
