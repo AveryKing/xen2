@@ -19,11 +19,18 @@ const doParamsExist = (req, res, next) => {
         }
     })
     return missingParameters.length
-        ? res.status(400).json({error: `Missing parameters: ${missingParameters.join(', ')}`})
+        ? next({status:400, message:`Missing paramters: ${missingParameters.join(', ')}`})
         : next();
 }
 
 const isUsernameValid = (req,res,next) => {
+    const {username} = req.body.data;
+    if(username.length < 3 || username.length > 10) {
+        return next({
+            status:400,
+            message:'Your username must be between 3 and 10 characters.'
+        })
+    }
     next();
 }
 
@@ -33,7 +40,8 @@ const list = (req, res, next) => {
         .then(data => {
             res.json({data});
         })
-        .catch(() => {
+        .catch((err) => {
+            console.error(err);
             next({
                 status:500,
                 message:'There was an error retrieving users from the database.'
