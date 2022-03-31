@@ -13,10 +13,10 @@ const create = async (user) => {
     return knex('users').insert(user, 'id');
 }
 
-const validatePassword = async (userId, plaintext) => {
+const validatePassword = async (username, plaintext) => {
     const res = await knex('users')
         .select('password')
-        .where('id', '=', userId);
+        .where('username', '=', username);
     return bcrypt.compare(plaintext, res[0].password);
 }
 

@@ -115,6 +115,7 @@ describe("create", () => {
 
     describe("POST to /users creates a new account", () => {
         let newUser;
+        const newUserPassword = 'pass123'
         test('response body includes success message', async () => {
             await knex.seed.run();
             const response = await supertest(app)
@@ -124,7 +125,7 @@ describe("create", () => {
                     data: {
                         username: 'username',
                         email: 'email@email.com',
-                        password: 'omg7omg'
+                        password: newUserPassword
                     }
                 });
             expect(response.body.data).toBeDefined();
@@ -141,11 +142,36 @@ describe("create", () => {
         })
 
         test('password hashed successfully', async () => {
-            expect(await service.validatePassword(newUser[0].id,'omg7omg')).toBeTruthy();
+            expect(await service.validatePassword(newUser[0].username,newUserPassword)).toBeTruthy();
 
         })
 
     })
+
+})
+
+describe('login', () => {
+    const badCases = [
+        {test:'Non-existent username returns error', username:'ejnoen',password:'123456',includes:'not associated'},
+        {test:'Invalid password returns error', username:'ejnoen',password:'123456',includes:'is incorrect'},
+    ]
+    for(let i in badCases) {
+        test(badCases[i].test, async () => {
+            const response = await supertest(app).post('/login')
+                .set('Accept', 'application/json')
+                .send({
+                    data: {
+                        username: badCases[i].username,
+                        password: badCases[i].password
+                    }
+                });
+            expect(response.status).toBe(401);
+            expect(response.body.error).toBeDefined();
+            expect(response.body.error).toContain(badCases[i].includes);
+
+        })
+    }
+
 
 })
 
