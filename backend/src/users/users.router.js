@@ -11,4 +11,8 @@ router.route('/:userId')
     .get(controller.read)
     .all(methodNotAllowed);
 
+router.route('/login')
+    .post(controller.login)
+    .all(methodNotAllowed);
+
 module.exports = router;

@@ -120,7 +120,19 @@ const read = (req, res, next) => {
         })
 }
 
+const login = (req,res,next) => {
+    const {username, password} = req.body.data;
+    if(!username || !password) {
+        return next({
+            status:400,
+            message:'Invalid request'
+        })
+    }
+
+}
+
 module.exports = {
+    login:login,
     list: list,
     create: [
         doParamsExist,
