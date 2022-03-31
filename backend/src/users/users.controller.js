@@ -1,6 +1,4 @@
 const service = require('./users.service');
-//const asyncErrorBoundary = require('../errors/asyncErrorBoundary');
-//const dbError = require('../errors/dbError');
 
 // Validates request parameters
 const doParamsExist = (req, res, next) => {
@@ -9,8 +7,8 @@ const doParamsExist = (req, res, next) => {
     const {data} = req.body;
     if (!data) {
         next({
-            status:400,
-            message:'Request body is malformed'
+            status: 400,
+            message: 'Request body is malformed'
         })
     }
     requiredProperties.forEach(property => {
@@ -19,38 +17,38 @@ const doParamsExist = (req, res, next) => {
         }
     })
     return missingParameters.length
-        ? next({status:400, message:`Missing parameters: ${missingParameters.join(', ')}`})
+        ? next({status: 400, message: `Missing parameters: ${missingParameters.join(', ')}`})
         : next();
 }
 
-const isUsernameValid = (req,res,next) => {
+const isUsernameValid = (req, res, next) => {
     const {username} = req.body.data;
-    if(username.length < 3 || username.length > 10) {
+    if (username.length < 3 || username.length > 10) {
         return next({
-            status:400,
-            message:'Your username must be between 3 and 10 characters.'
+            status: 400,
+            message: 'Your username must be between 3 and 10 characters.'
         })
     }
     next();
 }
 
-const isEmailValid = (req,res,next) => {
+const isEmailValid = (req, res, next) => {
     const pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
-  //  console.log(req.body.data.email)
-   if(!req.body.data.email.match(pattern)) {
+    //  console.log(req.body.data.email)
+    if (!req.body.data.email.match(pattern)) {
         return next({
-            status:400,
-            message:'That email is invalid.'
+            status: 400,
+            message: 'That email is invalid.'
         })
     }
     next();
 }
 
-const isPasswordValid = (req,res,next) => {
-    if(req.body.data.password.length < 6) {
+const isPasswordValid = (req, res, next) => {
+    if (req.body.data.password.length < 6) {
         return next({
-            status:400,
-            message:'Your password must be at least 6 characters in length.'
+            status: 400,
+            message: 'Your password must be at least 6 characters in length.'
         })
     }
     next();
@@ -65,15 +63,15 @@ const list = (req, res, next) => {
         .catch((err) => {
             console.error(err);
             next({
-                status:500,
-                message:'There was an error retrieving users from the database.'
+                status: 500,
+                message: 'There was an error retrieving users from the database.'
             })
         })
 }
 
 // Registers a new user
-const create = (req, res, next) => {
-    service.create(req.body.data)
+const create = async (req, res, next) => {
+    await service.create(req.body.data)
         .then((data) => {
             res.json({
                 data: {
@@ -83,20 +81,20 @@ const create = (req, res, next) => {
             })
         })
         .catch((err) => {
-            if(err.detail.includes('username')) {
+            if (err.detail.includes('username')) {
                 return next({
-                    status:400,
-                    message:'That username is taken. Please choose a different one.'
+                    status: 400,
+                    message: 'That username is taken. Please choose a different one.'
                 })
-            } else if(err.detail.includes('email')) {
+            } else if (err.detail.includes('email')) {
                 return next({
-                    status:400,
-                    message:'That email is taken. Please use a different one.'
+                    status: 400,
+                    message: 'That email is taken. Please use a different one.'
                 })
             }
             next({
-                status:500,
-                message:'There was an error creating your account.'
+                status: 500,
+                message: 'There was an error creating your account.'
             })
         })
 }
@@ -108,7 +106,7 @@ const read = (req, res, next) => {
         .then(data => {
             if (!data.length) {
                 return next({
-                    status:404,
+                    status: 404,
                     message: 'User not found'
                 });
             }
@@ -116,8 +114,8 @@ const read = (req, res, next) => {
         })
         .catch(() => {
             next({
-                status:500,
-                message:'There was an error retrieving this user from the database.'
+                status: 500,
+                message: 'There was an error retrieving this user from the database.'
             })
         })
 }
