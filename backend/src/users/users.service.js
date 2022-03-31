@@ -17,8 +17,13 @@ const read = (id) => {
         .where('id','=',id);
 }
 
+const isUsernameTaken = (username) => {
+    return knex('users').select('id')
+        .where('username','=', username).length === 0
+}
 module.exports = {
     list,
     create,
+    isUsernameTaken,
     read
 }

@@ -19,7 +19,7 @@ const doParamsExist = (req, res, next) => {
         }
     })
     return missingParameters.length
-        ? next({status:400, message:`Missing paramters: ${missingParameters.join(', ')}`})
+        ? next({status:400, message:`Missing parameters: ${missingParameters.join(', ')}`})
         : next();
 }
 
@@ -60,7 +60,18 @@ const create = (req, res, next) => {
                 }
             })
         })
-        .catch(() => {
+        .catch((err) => {
+            if(err.detail.includes('username')) {
+                return next({
+                    status:400,
+                    message:'That username is taken. Please choose a different one.'
+                })
+            } else if(err.detail.includes('email')) {
+                return next({
+                    status:400,
+                    message:'That email is taken. Please use a different one.'
+                })
+            }
             next({
                 status:500,
                 message:'There was an error creating your account.'
