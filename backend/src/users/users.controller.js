@@ -34,6 +34,18 @@ const isUsernameValid = (req,res,next) => {
     next();
 }
 
+const isEmailValid = (req,res,next) => {
+    const pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+  //  console.log(req.body.data.email)
+   if(!req.body.data.email.match(pattern)) {
+        return next({
+            status:400,
+            message:'That email is invalid.'
+        })
+    }
+    next();
+}
+
 // Returns a list of all users
 const list = (req, res, next) => {
     service.list()
@@ -105,6 +117,7 @@ module.exports = {
     create: [
         doParamsExist,
         isUsernameValid,
+        isEmailValid,
         create
     ],
     read: read

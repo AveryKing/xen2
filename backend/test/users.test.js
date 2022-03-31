@@ -58,7 +58,7 @@ describe("create", () => {
                             .send({
                                 data: {
                                     username: usernameDatasets[i].value,
-                                    email:'testemail@gmail.com',
+                                    email:'test@gmail.com',
                                     password:'iamapassword'
                                 },
                             });
@@ -68,6 +68,31 @@ describe("create", () => {
                     })
                 }
             })
+
+        describe('email validation', () => {
+            const emailDatasets = [
+                {test: 'email must be unique', value: testUserData[0].email},
+                {test: 'email must be valid format', value: "not@valid"},
+                {test: 'email cannot be empty', value: ""}
+            ]
+            for(let i in emailDatasets) {
+                test(emailDatasets[i].test, async () => {
+                    const response = await supertest(app)
+                        .post('/users')
+                        .set('Accept', 'application/json')
+                        .send({
+                            data: {
+                                email: emailDatasets[i].value,
+                                username:`testuser${i}`,
+                                password:'iamapassword'
+                            },
+                        });
+                    expect(response.status).toBe(400);
+                    expect(response.body.error).toBeDefined();
+                    expect(response.body.error).toContain('email');
+                })
+            }
+        })
     })
 
     describe("POST to /users creates a new account", () => {
@@ -80,7 +105,7 @@ describe("create", () => {
                 .send({
                     data: {
                         username: 'username',
-                        email: 'email',
+                        email: 'email@email.com',
                         password: 'password'
                     }
                 });
