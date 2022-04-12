@@ -5,6 +5,7 @@ const makeTestApp = require("./makeTestApp");
 const service = require('../src/users/users.service');
 const app = makeTestApp('/users', usersRouter);
 const knex = require('../src/db/connection')
+const jwt = require('jsonwebtoken');
 const testUserData = require('../src/db/test/config/testUserData')
 
 /***
@@ -174,18 +175,35 @@ describe('login', () => {
         })
     }
 
-    test('Valid login returns JWT', async () => {
-        const response = await supertest(app).post('/users/login')
+    const loginTestUser = {
+        username: testUserData[0].username,
+        password:"amy",
+        id:1
+    }
+
+    const doLoginRequest = () =>  {
+        return supertest(app).post('/users/login')
             .set('Accept', 'application/json')
             .send({
                 data: {
-                    username: testUserData[0].username,
-                    password: "amy"
+                    username: loginTestUser.username,
+                    password: loginTestUser.password
                 }
             });
+    }
+    test('Valid login returns JWT', async () => {
+        const response = await doLoginRequest();
         expect(response.status).toBe(200);
         expect(response.body.error).toBeUndefined();
         expect(response.body.data.token).toBeDefined();
+    })
+
+    test('JWT returned from login is valid', async () => {
+        const response = await doLoginRequest();
+        expect(response.status).toBe(200);
+        expect(response.body.error).toBeUndefined();
+        expect(response.body.data.token).toBeDefined();
+        expect(jwt.decode(response.body.data.token).id).toBe(loginTestUser.id);
     })
 
 
