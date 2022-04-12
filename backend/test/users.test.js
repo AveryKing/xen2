@@ -43,31 +43,31 @@ describe("create", () => {
 
             })
         })
-            describe('username validation', () => {
-                const usernameDatasets = [
-                    {test: 'username cannot be empty', value: ''},
-                    {test: 'username cannot be less than 3 characters', value: '12'},
-                    {test: 'username cannot be greater than 10 characters', value: 'qwertyuiopasdfgh'},
-                    {test: 'username must be unique', value: testUserData[0].username},
-                ]
-                for(let i of usernameDatasets) {
-                    test(i.test, async () => {
-                        const response = await supertest(app)
-                            .post('/users')
-                            .set('Accept', 'application/json')
-                            .send({
-                                data: {
-                                    username: i.value,
-                                    email:'test@gmail.com',
-                                    password:'iamapassword'
-                                },
-                            });
-                        expect(response.status).toBe(400);
-                        expect(response.body.error).toBeDefined();
-                        expect(response.body.error).toContain('username');
-                    })
-                }
-            })
+        describe('username validation', () => {
+            const usernameDatasets = [
+                {test: 'username cannot be empty', value: ''},
+                {test: 'username cannot be less than 3 characters', value: '12'},
+                {test: 'username cannot be greater than 10 characters', value: 'qwertyuiopasdfgh'},
+                {test: 'username must be unique', value: testUserData[0].username},
+            ]
+            for (let i of usernameDatasets) {
+                test(i.test, async () => {
+                    const response = await supertest(app)
+                        .post('/users')
+                        .set('Accept', 'application/json')
+                        .send({
+                            data: {
+                                username: i.value,
+                                email: 'test@gmail.com',
+                                password: 'iamapassword'
+                            },
+                        });
+                    expect(response.status).toBe(400);
+                    expect(response.body.error).toBeDefined();
+                    expect(response.body.error).toContain('username');
+                })
+            }
+        })
 
         describe('email validation', () => {
             const emailDatasets = [
@@ -75,7 +75,7 @@ describe("create", () => {
                 {test: 'email must be valid format', value: "not@valid"},
                 {test: 'email cannot be empty', value: ""}
             ]
-            for(let i of emailDatasets) {
+            for (let i of emailDatasets) {
                 test(i.test, async () => {
                     const response = await supertest(app)
                         .post('/users')
@@ -83,8 +83,8 @@ describe("create", () => {
                         .send({
                             data: {
                                 email: i.value,
-                                username:`testuser`,
-                                password:'iamapassword'
+                                username: `testuser`,
+                                password: 'iamapassword'
                             },
                         });
                     expect(response.status).toBe(400);
@@ -95,15 +95,15 @@ describe("create", () => {
         })
 
         describe('password validation', () => {
-            test('password must be at least 6 characters' , async () => {
+            test('password must be at least 6 characters', async () => {
                 const response = await supertest(app)
                     .post('/users')
                     .set('Accept', 'application/json')
                     .send({
                         data: {
-                            email:'email@me.com',
-                            username:'username12',
-                            password:'123'
+                            email: 'email@me.com',
+                            username: 'username12',
+                            password: '123'
                         }
                     })
                 expect(response.status).toBe(400);
@@ -142,23 +142,23 @@ describe("create", () => {
             expect(response.body.data[0].id).toBe(newUser[0].id)
         })
 
-            /**TODO: FIX
         test('password hashed successfully', async () => {
-            expect(await service.validatePassword(newUser[0].username,newUserPassword)).toBeTruthy();
-
+            expect(await service.validatePassword(newUser[0].username, newUserPassword)).toBeTruthy();
         })
-             */
-
     })
-
 })
 
 describe('login', () => {
     const badCases = [
-        {test:'Non-existent username returns error', username:'ejnoen',password:'123456',includes:'error'},
-        {test:'Invalid password returns error', username:testUserData[0].username,password:'123456',includes:'error'},
+        {test: 'Non-existent username returns error', username: 'ejnoen', password: '123456', includes: 'error'},
+        {
+            test: 'Invalid password returns error',
+            username: testUserData[0].username,
+            password: '123456',
+            includes: 'error'
+        },
     ]
-    for(let i in badCases) {
+    for (let i in badCases) {
         test(badCases[i].test, async () => {
             const response = await supertest(app).post('/users/login')
                 .set('Accept', 'application/json')
@@ -171,17 +171,16 @@ describe('login', () => {
             expect(response.status).toBe(401);
             expect(response.body.error).toBeDefined();
             expect(response.body.error).toContain(badCases[i].includes);
-
         })
     }
 
     const loginTestUser = {
         username: testUserData[0].username,
-        password:"amy",
-        id:1
+        password: "amy",
+        id: 1
     }
 
-    const doLoginRequest = () =>  {
+    const doLoginRequest = () => {
         return supertest(app).post('/users/login')
             .set('Accept', 'application/json')
             .send({
@@ -191,21 +190,24 @@ describe('login', () => {
                 }
             });
     }
+    const successfulLoginExpectations = (res) => {
+        expect(res.status).toBe(200);
+        expect(res.body.error).toBeUndefined();
+        expect(res.body.data.token).toBeDefined();
+    }
+
     test('Valid login returns JWT', async () => {
-        const response = await doLoginRequest();
-        expect(response.status).toBe(200);
-        expect(response.body.error).toBeUndefined();
-        expect(response.body.data.token).toBeDefined();
+        doLoginRequest()
+            .then(res => successfulLoginExpectations(res));
     })
 
     test('JWT returned from login is valid', async () => {
-        const response = await doLoginRequest();
-        expect(response.status).toBe(200);
-        expect(response.body.error).toBeUndefined();
-        expect(response.body.data.token).toBeDefined();
-        expect(jwt.decode(response.body.data.token).id).toBe(loginTestUser.id);
+        doLoginRequest()
+            .then(res => {
+                successfulLoginExpectations(res);
+                expect(jwt.decode(res.body.data.token).id).toBe(loginTestUser.id);
+            })
     })
-
 
 })
 
