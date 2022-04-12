@@ -49,14 +49,14 @@ describe("create", () => {
                     {test: 'username cannot be greater than 10 characters', value: 'qwertyuiopasdfgh'},
                     {test: 'username must be unique', value: testUserData[0].username},
                 ]
-                for(let i in usernameDatasets) {
-                    test(usernameDatasets[i].test, async () => {
+                for(let i of usernameDatasets) {
+                    test(i.test, async () => {
                         const response = await supertest(app)
                             .post('/users')
                             .set('Accept', 'application/json')
                             .send({
                                 data: {
-                                    username: usernameDatasets[i].value,
+                                    username: i.value,
                                     email:'test@gmail.com',
                                     password:'iamapassword'
                                 },
@@ -74,15 +74,15 @@ describe("create", () => {
                 {test: 'email must be valid format', value: "not@valid"},
                 {test: 'email cannot be empty', value: ""}
             ]
-            for(let i in emailDatasets) {
-                test(emailDatasets[i].test, async () => {
+            for(let i of emailDatasets) {
+                test(i.test, async () => {
                     const response = await supertest(app)
                         .post('/users')
                         .set('Accept', 'application/json')
                         .send({
                             data: {
-                                email: emailDatasets[i].value,
-                                username:`testuser${i}`,
+                                email: i.value,
+                                username:`testuser`,
                                 password:'iamapassword'
                             },
                         });
@@ -152,12 +152,12 @@ describe("create", () => {
 
 describe('login', () => {
     const badCases = [
-        {test:'Non-existent username returns error', username:'ejnoen',password:'123456',includes:'not associated'},
-        {test:'Invalid password returns error', username:'ejnoen',password:'123456',includes:'is incorrect'},
+        {test:'Non-existent username returns error', username:'ejnoen',password:'123456',includes:'error'},
+        {test:'Invalid password returns error', username:'ejnoen',password:'123456',includes:'error'},
     ]
     for(let i in badCases) {
         test(badCases[i].test, async () => {
-            const response = await supertest(app).post('/login')
+            const response = await supertest(app).post('/users/login')
                 .set('Accept', 'application/json')
                 .send({
                     data: {
@@ -171,6 +171,20 @@ describe('login', () => {
 
         })
     }
+
+    test('Valid login returns JWT', async () => {
+        const response = await supertest(app).post('/users/login')
+            .set('Accept', 'application/json')
+            .send({
+                data: {
+                    username: testUserData[0].username,
+                    password: testUserData[0].password
+                }
+            });
+        expect(response.status).toBe(200);
+        expect(response.body.error).toBeUndefined();
+        expect(response.body.data.token).toBeDefined();
+    })
 
 
 })

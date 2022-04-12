@@ -120,19 +120,31 @@ const read = (req, res, next) => {
         })
 }
 
-const login = (req,res,next) => {
+const login = async (req, res, next) => {
     const {username, password} = req.body.data;
-    if(!username || !password) {
+    if (!username || !password) {
         return next({
-            status:400,
-            message:'Invalid request'
+            status: 400,
+            message: 'Invalid request'
+        })
+    }
+    const validate = await service.validatePassword(username, password);
+    if (validate) {
+        return res.json({
+            data: {
+                token: validate
+            }
         })
     }
 
+    return next({
+        status: 401,
+        message: 'There was an error logging in'
+    })
 }
 
 module.exports = {
-    login:login,
+    login: login,
     list: list,
     create: [
         doParamsExist,

@@ -1,6 +1,6 @@
 const knex = require('../db/connection');
 const bcrypt = require('bcryptjs');
-
+const jwt = require('jsonwebtoken');
 // Retrieves all users from database
 const list = () => knex('users').select('*');
 
@@ -17,7 +17,14 @@ const validatePassword = async (username, plaintext) => {
     const res = await knex('users')
         .select('password')
         .where('username', '=', username);
-    return bcrypt.compare(plaintext, res[0].password);
+    if(res.length) {
+        if(bcrypt.compare(plaintext, res[0].password)) {
+            return jwt.sign(JSON.stringify(res[0]), process.env.JWT_KEY)
+        }
+    } else {
+        return false;
+    }
+
 }
 
 const hashPassword = (password) => bcrypt.hash(password, 10)
