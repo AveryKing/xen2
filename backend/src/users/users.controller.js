@@ -135,12 +135,14 @@ const login = async (req, res, next) => {
                 token: validate
             }
         })
+    } else {
+        return next({
+            status: 401,
+            message: 'There was an error logging in'
+        })
     }
 
-    return next({
-        status: 401,
-        message: 'There was an error logging in'
-    })
+
 }
 
 module.exports = {

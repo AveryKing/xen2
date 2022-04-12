@@ -15,19 +15,17 @@ const create = async (user) => {
 
 const validatePassword = async (username, plaintext) => {
     const res = await knex('users')
-        .select('password')
+        .select('*')
         .where('username', '=', username);
-    if(res.length) {
-        if(bcrypt.compare(plaintext, res[0].password)) {
-            return jwt.sign(JSON.stringify(res[0]), process.env.JWT_KEY)
-        }
-    } else {
-        return false;
-    }
 
+    if (!res.length) return false;
+
+    return await bcrypt.compare(plaintext, res[0].password)
+        ? jwt.sign(JSON.stringify(res[0]), process.env.JWT_KEY)
+        : false;
 }
 
-const hashPassword = (password) => bcrypt.hash(password, 10)
+const hashPassword = (password) => bcrypt.hash(password, 10);
 
 // Retrieves a user's data from database
 const read = (id) => {
