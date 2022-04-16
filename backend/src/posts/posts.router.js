@@ -8,6 +8,7 @@ router.route('/:postId')
 
 router.route('/')
     .get(controller.list)
+    .post(controller.create)
     .all(methodNotAllowed);
 
 module.exports = router;
