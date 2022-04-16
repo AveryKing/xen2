@@ -5,9 +5,15 @@ const makeTestApp = require("./makeTestApp");
 const service = require('../src/posts/posts.service');
 const app = makeTestApp('/posts', postsRouter);
 const knex = require('../src/db/connection')
-const jwt = require('jsonwebtoken');
 const testPostData = require("../src/db/config/testPostData");
-const testUserData = require("../src/db/config/testUserData");
+jest.setTimeout(100000);
+
+function makePost(content = {}) {
+    return supertest(app)
+        .post('/posts')
+        .set('Accept', 'application/json')
+        .send(content);
+}
 
 describe('list', () => {
     test('should return all posts', async () => {
@@ -33,19 +39,11 @@ describe('read', () => {
         const response = await supertest(app).get(`/posts/${postId}`);
         expect(response.status).toBe(200);
         expect(response.body.data).toBeDefined();
-        console.log(response.body.data)
         expect(response.body.data[0].content).toBe(testPostData[0].content);
     });
 })
 
 describe("create", () => {
-    function makePost(content = {}) {
-        return supertest(app)
-            .post('/posts')
-            .set('Accept', 'application/json')
-            .send(content);
-    }
-
     describe('request validation', () => {
         test("data required in request.body", async () => {
             makePost()
@@ -73,4 +71,52 @@ describe("create", () => {
                 })
         })
     })
+
+    //TODO: implement max length validation
+    const lengthTests = [
+        {param: 'title', min: 6, other: {content: 'super cool post content xD'}},
+        {param: 'content', min: 20, other: {title: 'hello, world!'}}
+    ]
+
+    lengthTests.forEach(lengthTest => {
+        const curr = lengthTest.param;
+        test(`${curr} must be at least ${lengthTest.min} characters`, async () => {
+            makePost({
+                [curr.param]: 'x'.repeat(lengthTest.min - 1),
+                ...lengthTest.other
+            })
+                .then(res => {
+                    expect(res.status).toBe(400);
+                    expect(res.body.error).toBeDefined();
+                    expect(res.body.error).toContain(curr.replace(/^\w/, c => c.toUpperCase()));
+                })
+        })
+    })
+    /*
+    test("title must be at least 6 characters", async () => {
+        await makePost({
+            data: {
+                title: 'short',
+                content: 'long content to conform with the content length requirement :p'
+            }
+        })
+            .then(res => {
+                expect(res.status).toBe(400);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toBe('Title must be at least 8 characters long');
+            })
+    })
+    test("content must be at least 20 characters", async () => {
+        await makePost({
+            data: {
+                title: 'hello, world!',
+                content: 'bye world'
+            }
+        })
+            .then(res => {
+                expect(res.status).toBe(400);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toBe('Content must be at least 20 characters long');
+            })
+    })*/
 })

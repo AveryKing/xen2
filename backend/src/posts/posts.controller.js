@@ -1,6 +1,6 @@
 const service = require('./posts.service');
 
-const doParamsExist = (req, res, next) => {
+function doParamsExist (req, res, next) {
     const requiredProps = ['title', 'content'];
     const missingParams = [];
     const {data} = req.body;
@@ -20,10 +20,22 @@ const doParamsExist = (req, res, next) => {
         : next();
 }
 
-const create = (req,res,next) => {
+function isTitleValid (req,res,next) {
+    return req.body.data.title.length < 8
+        ? next({status: 400, message: 'Title must be at least 8 characters long'})
+        : next();
+}
+
+function isContentValid (req,res,next) {
+    return req.body.data.content.length < 20
+        ? next({status: 400, message: 'Content must be at least 20 characters long'})
+        : next();
+}
+
+function create (req,res,next)  {
 
 }
-const list = (req, res, next) => {
+function list (req, res, next)  {
     service.list()
         .then(data => {
             return res.json({data});
@@ -37,7 +49,7 @@ const list = (req, res, next) => {
         })
 }
 
-const read = (req, res, next) => {
+function read (req, res, next) {
     const {postId} = req.params;
     service.read(postId)
         .then(data => {
@@ -59,5 +71,10 @@ const read = (req, res, next) => {
 module.exports = {
     list,
     read,
-    create: [doParamsExist, create]
+    create: [
+        doParamsExist,
+        isTitleValid,
+        isContentValid,
+        create
+    ]
 }
