@@ -6,7 +6,7 @@ const service = require('../src/users/users.service');
 const app = makeTestApp('/users', usersRouter);
 const knex = require('../src/db/connection')
 const jwt = require('jsonwebtoken');
-const testUserData = require('../src/db/test/config/testUserData')
+const testUserData = require('../src/db/config/userData')
 
 /***
  * Include --runInBand flag when running Jest for tests to pass!

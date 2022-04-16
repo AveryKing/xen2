@@ -1,16 +1,17 @@
 require('dotenv').config();
 
 module.exports = {
-  development: {
+  "development": {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
       directory: './src/db/migrations',
     },
     seeds: { directory: './src/db/seeds' },
-  },
+  }
+}
 
-  testing: {
+  /*"testing": {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
@@ -19,7 +20,7 @@ module.exports = {
     seeds: { directory: './src/db/test/seeds' },
   },
 
-  production: {
+  "production": {
     client: 'pg',
     connection: process.env.DB_URL,
     migrations: {
@@ -28,4 +29,7 @@ module.exports = {
     seeds: { directory: './src/db/seeds' },
   },
 };
+
+
+   */
 
