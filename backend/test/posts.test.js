@@ -28,23 +28,34 @@ describe('list', () => {
 describe('read', () => {
     test("GET /:postId returns 404 if post does not exist", async () => {
         const postId = 99999;
-        const response = await supertest(app).get(`/posts/${postId}`);
-        expect(response.status).toBe(404);
-        expect(response.body.error).toBeDefined();
-        expect(response.body.error).toContain('not found');
-    });
+        supertest(app).get(`/posts/${postId}`)
+            .then(res => {
+                expect(res.status).toBe(404);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('not found');
+            });
+
+    })
 
     test("GET /:postId returns post if it exists", async () => {
         const postId = testPostData[0].id;
-        const response = await supertest(app).get(`/posts/${postId}`);
-        expect(response.status).toBe(200);
-        expect(response.body.data).toBeDefined();
-        expect(response.body.data[0].content).toBe(testPostData[0].content);
+        supertest(app).get(`/posts/${postId}`)
+            .then(res => {
+                expect(res.status).toBe(200);
+                expect(res.body.data).toBeDefined();
+                expect(res.body.data[0].content).toBe(testPostData[0].content);
+            })
+
     });
 })
 
 describe("create", () => {
-    describe('request validation', () => {
+    const validPost = {
+        title: 'Hello, World!',
+        content:'The quick brown fox jumped over the lazy dog.'
+    }
+
+
         test("data required in request.body", async () => {
             makePost()
                 .then(res => {
@@ -52,71 +63,55 @@ describe("create", () => {
                     expect(res.body.error).toBe('Request body is malformed');
                 })
         })
-    });
-    const requiredParams = ['title', 'content'];
-    requiredParams.forEach(param => {
-        test(`${param} parameter required`, async () => {
-            const params = requiredParams.filter(x => x !== param);
-            await makePost({
-                data: params.reduce((acc, param) => {
-                    acc[param] = 'data';
-                    return acc;
-                }, {})
-            })
-                .then(res => {
-                    expect(res.status).toBe(400);
-                    expect(res.body.error).toBeDefined();
-                    requiredParams.filter(x => !params.includes(x))
-                        .forEach(param => expect(res.body.error).toContain(param));
+        const requiredParams = ['title', 'content'];
+        requiredParams.forEach(param => {
+            test(`${param} parameter required`, async () => {
+                const params = requiredParams.filter(x => x !== param);
+                 makePost({
+                    data: params.reduce((acc, param) => {
+                        acc[param] = 'data';
+                        return acc;
+                    }, {})
                 })
-        })
-    })
-
-    //TODO: implement max length validation
-    const lengthTests = [
-        {param: 'title', min: 6, other: {content: 'super cool post content xD'}},
-        {param: 'content', min: 20, other: {title: 'hello, world!'}}
-    ]
-
-    lengthTests.forEach(lengthTest => {
-        const curr = lengthTest.param;
-        test(`${curr} must be at least ${lengthTest.min} characters`, async () => {
-            makePost({
-                [curr.param]: 'x'.repeat(lengthTest.min - 1),
-                ...lengthTest.other
+                    .then(res => {
+                        expect(res.status).toBe(400);
+                        expect(res.body.error).toBeDefined();
+                        requiredParams.filter(x => !params.includes(x))
+                            .forEach(param => expect(res.body.error).toContain(param));
+                    })
             })
-                .then(res => {
-                    expect(res.status).toBe(400);
-                    expect(res.body.error).toBeDefined();
-                    expect(res.body.error).toContain(curr.replace(/^\w/, c => c.toUpperCase()));
+        })
+
+        //TODO: implement max length validation
+        const lengthTests = [
+            {param: 'title', min: 6, other: {content: 'super cool post content xD'}},
+            {param: 'content', min: 20, other: {title: 'hello, world!'}}
+        ]
+
+        lengthTests.forEach(lengthTest => {
+            const curr = lengthTest.param;
+            test(`${curr} must be at least ${lengthTest.min} characters`, async () => {
+                makePost({
+                    [curr.param]: 'x'.repeat(lengthTest.min - 1),
+                    ...lengthTest.other
                 })
-        })
-    })
-    /*
-    test("title must be at least 6 characters", async () => {
-        await makePost({
-            data: {
-                title: 'short',
-                content: 'long content to conform with the content length requirement :p'
-            }
-        })
-            .then(res => {
-                expect(res.status).toBe(400);
-                expect(res.body.error).toBeDefined();
-                expect(res.body.error).toBe('Title must be at least 8 characters long');
+                    .then(res => {
+                        expect(res.status).toBe(400);
+                        expect(res.body.error).toBeDefined();
+                        expect(res.body.error).toContain(curr.replace(/^\w/, c => c.toUpperCase()));
+                    })
             })
-    })
-    test("content must be at least 20 characters", async () => {
-        await makePost({
-            data: {
-                title: 'hello, world!',
-                content: 'bye world'
-            }
         })
+    test('posts are successfully inserted to database', async () => {
+        const post = {
+            data: validPost
+        }
+         makePost(post)
             .then(res => {
-                expect(res.status).toBe(400);
-                expect(res.body.error).toBeDefined();
-                expect(res.body.error).toBe('Content must be at least 20 characters long');
+                expect(res.status).toBe(201);
+                expect(res.body.data).toBeDefined();
+                expect(res.body.data[0].title).toBe(post.title);
+                expect(res.body.data[0].content).toBe(post.content);
             })
-    })*/
 })
+});

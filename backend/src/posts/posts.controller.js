@@ -33,7 +33,7 @@ function isContentValid (req,res,next) {
 }
 
 function create (req,res,next)  {
-
+    res.json(req.body);
 }
 function list (req, res, next)  {
     service.list()
