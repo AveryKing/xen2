@@ -9,9 +9,11 @@ app.use(cors());
 
 // Express router definitions
 const usersRouter = require('./users/users.router');
+const postsRouter = require('./posts/posts.router');
 
 // Express routes
 app.use('/users', usersRouter);
+app.use('/posts', postsRouter);
 
 // Error handlers
 app.use(notFound);
