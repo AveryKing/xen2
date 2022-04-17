@@ -1,4 +1,5 @@
 const service = require('./posts.service');
+const jwtAuth = require('../auth/protectRoute');
 
 function doParamsExist (req, res, next) {
     const requiredProps = ['title', 'content'];
@@ -72,6 +73,7 @@ module.exports = {
     list,
     read,
     create: [
+        jwtAuth,
         doParamsExist,
         isTitleValid,
         isContentValid,

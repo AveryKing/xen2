@@ -55,6 +55,24 @@ describe("create", () => {
         content:'The quick brown fox jumped over the lazy dog.'
     }
 
+    test("auth token cannot be missing" , async () => {
+        makePost({data:validPost})
+            .then(res => {
+                console.log(res.body)
+                expect(res.error).toBeDefined();
+                expect(res.error).toContain('token');
+            })
+    });
+
+    test('auth token must be valid', async() => {
+        makePost({data:validPost})
+            .set('Authorization', 'Bearer invalid')
+            .then(res => {
+                expect(res.status).toBe(401);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('token');
+            })
+    })
 
         test("data required in request.body", async () => {
             makePost()
@@ -102,6 +120,7 @@ describe("create", () => {
                     })
             })
         })
+
     test('posts are successfully inserted to database', async () => {
         const post = {
             data: validPost
@@ -114,4 +133,4 @@ describe("create", () => {
                 expect(res.body.data[0].content).toBe(post.content);
             })
 })
-});
+})
