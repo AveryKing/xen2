@@ -5,6 +5,7 @@ const users = [
     {username: 'adam', email: 'adam@gmail.com', password: 'adam'},
     {username: 'kylie', email: 'kylie@gmail.com', password: 'kylie'},
     {username: 'anna', email: 'anna@gmail.com', password: 'anna'},
+    {username: 'debug', email: 'debug@debug.me', password: 'debug'},
 ]
 
 users.forEach(user => {

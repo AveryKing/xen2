@@ -8,11 +8,25 @@ const knex = require('../src/db/connection')
 const testPostData = require("../src/db/config/testPostData");
 jest.setTimeout(100000);
 
-function makePost(content = {}) {
+function makePost(auth = null, content = {}) {
+    if (auth) {
+        return supertest(app)
+            .post('/posts')
+            .set('Authorization', `Bearer ${auth}`)
+            .send(content);
+    } else {
+        return supertest(app)
+            .post('/posts')
+            .set('Accept', 'application/json')
+            .send(content);
+    }
+
+
+}
+
+function readPost(postId) {
     return supertest(app)
-        .post('/posts')
-        .set('Accept', 'application/json')
-        .send(content);
+        .get(`/posts/${postId}`);
 }
 
 describe('list', () => {
@@ -28,7 +42,7 @@ describe('list', () => {
 describe('read', () => {
     test("GET /:postId returns 404 if post does not exist", async () => {
         const postId = 99999;
-        supertest(app).get(`/posts/${postId}`)
+        await readPost(postId)
             .then(res => {
                 expect(res.status).toBe(404);
                 expect(res.body.error).toBeDefined();
@@ -38,7 +52,7 @@ describe('read', () => {
     })
 
     test("GET /:postId returns post if it exists", async () => {
-        const postId = testPostData[0].id;
+        const postId = 1;
         supertest(app).get(`/posts/${postId}`)
             .then(res => {
                 expect(res.status).toBe(200);
@@ -52,21 +66,20 @@ describe('read', () => {
 describe("create", () => {
     const validPost = {
         title: 'Hello, World!',
-        content:'The quick brown fox jumped over the lazy dog.'
+        content: 'The quick brown fox jumped over the lazy dog.'
     }
 
-    test("auth token cannot be missing" , async () => {
-        makePost({data:validPost})
+    test("auth token cannot be missing", async () => {
+        await makePost('', {data: validPost})
             .then(res => {
-                console.log(res.body)
-                expect(res.error).toBeDefined();
-                expect(res.error).toContain('token');
+                expect(res.status).toBe(401);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('token');
             })
     });
 
-    test('auth token must be valid', async() => {
-        makePost({data:validPost})
-            .set('Authorization', 'Bearer invalid')
+    test('auth token must be valid', async () => {
+        await makePost('invalid', {data: validPost})
             .then(res => {
                 expect(res.status).toBe(401);
                 expect(res.body.error).toBeDefined();
@@ -74,63 +87,75 @@ describe("create", () => {
             })
     })
 
-        test("data required in request.body", async () => {
-            makePost()
+    test("data required in request.body", async () => {
+        await makePost('debug')
+            .then(res => {
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toBe('Request body is malformed');
+            })
+    })
+    const requiredParams = ['title', 'content'];
+    requiredParams.forEach(param => {
+        test(`${param} parameter required`, async () => {
+            const params = requiredParams.filter(x => x !== param);
+            await makePost('debug', {
+                data: params.reduce((acc, param) => {
+                    acc[param] = 'data';
+                    return acc;
+                }, {})
+            })
                 .then(res => {
+                    expect(res.status).toBe(400);
                     expect(res.body.error).toBeDefined();
-                    expect(res.body.error).toBe('Request body is malformed');
+                    requiredParams.filter(x => !params.includes(x))
+                        .forEach(param => expect(res.body.error).toContain(param));
                 })
         })
-        const requiredParams = ['title', 'content'];
-        requiredParams.forEach(param => {
-            test(`${param} parameter required`, async () => {
-                const params = requiredParams.filter(x => x !== param);
-                 makePost({
-                    data: params.reduce((acc, param) => {
-                        acc[param] = 'data';
-                        return acc;
-                    }, {})
-                })
-                    .then(res => {
-                        expect(res.status).toBe(400);
-                        expect(res.body.error).toBeDefined();
-                        requiredParams.filter(x => !params.includes(x))
-                            .forEach(param => expect(res.body.error).toContain(param));
-                    })
-            })
-        })
+    })
 
-        //TODO: implement max length validation
-        const lengthTests = [
-            {param: 'title', min: 6, other: {content: 'super cool post content xD'}},
-            {param: 'content', min: 20, other: {title: 'hello, world!'}}
-        ]
+    //TODO: implement max length validation
+    const lengthTests = [
+        {param: 'title', min: 6, other: {content: 'super cool post content xD'}},
+        {param: 'content', min: 20, other: {title: 'hello, world!'}}
+    ]
 
-        lengthTests.forEach(lengthTest => {
-            const curr = lengthTest.param;
-            test(`${curr} must be at least ${lengthTest.min} characters`, async () => {
-                makePost({
-                    [curr.param]: 'x'.repeat(lengthTest.min - 1),
+    lengthTests.forEach(lengthTest => {
+        const curr = lengthTest.param;
+        test(`${curr} must be at least ${lengthTest.min} characters`, async () => {
+            await makePost('debug', {
+                data: {
+                    [curr]: 'x'.repeat(lengthTest.min - 1),
                     ...lengthTest.other
-                })
-                    .then(res => {
-                        expect(res.status).toBe(400);
-                        expect(res.body.error).toBeDefined();
-                        expect(res.body.error).toContain(curr.replace(/^\w/, c => c.toUpperCase()));
-                    })
-            })
-        })
+                }
 
-    test('posts are successfully inserted to database', async () => {
+            })
+                .then(res => {
+                    expect(res.status).toBe(400);
+                    expect(res.body.error).toBeDefined();
+                    expect(res.body.error).toContain(curr.replace(/^\w/, c => c.toUpperCase()));
+                })
+        })
+    })
+
+    test('new posts are inserted into database', async () => {
         const post = {
             data: validPost
         }
-         makePost(post)
+        await makePost('debug', post)
             .then(res => {
                 expect(res.status).toBe(201);
-                expect(res.body.data).toBeDefined();
-                expect(res.body.data[0].title).toBe(post.title);
-                expect(res.body.data[0].content).toBe(post.content);
+                expect(res.body.title).toBe(validPost.title);
+                expect(res.body.content).toBe(validPost.content);
+                return res.body;
             })
-})
+            .then(async newPost => {
+                await readPost(newPost.id)
+                    .then(res => {
+                        expect(res.status).toBe(200);
+                        expect(res.body.data).toBeDefined();
+                        expect(res.body.data[0].title).toBe(newPost.title);
+                        expect(res.body.data[0].content).toBe(newPost.content);
+                    })
+            })
+    })
 })
