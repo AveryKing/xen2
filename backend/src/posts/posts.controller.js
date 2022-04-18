@@ -105,7 +105,6 @@ function toggleLike(req, res, next) {
             }
         })
         .catch(err => {
-            console.error(err);
             return next({
                 status: 500,
                 message: `There was an error ${liking ? 'liking' : 'unliking'} this post.`
