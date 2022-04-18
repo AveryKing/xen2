@@ -161,68 +161,107 @@ describe("create", () => {
 })
 
 describe('likes', () => {
-        test('likeCount incremented upon like', async () => {
-            await readPost(1)
-                .then(res => {
-                    return res.body.data[0].likes
-                })
-                .then(async initialLikes => {
-                    await supertest(app)
-                        .post(`/posts/2/like`)
-                        .set('Authorization', `Bearer debug`)
-                        .send()
-                        .then(res => {
-                            expect(res.body.error).toBeUndefined();
-                            expect(res.body.likes.length).toBe(initialLikes.length + 1);
-                        })
+    test('likeCount incremented upon like', async () => {
+        await readPost(1)
+            .then(res => {
+                return res.body.data[0].likes
+            })
+            .then(async initialLikes => {
+                await supertest(app)
+                    .post(`/posts/2/like`)
+                    .set('Authorization', `Bearer debug`)
+                    .send()
+                    .then(res => {
+                        expect(res.body.error).toBeUndefined();
+                        expect(res.body.likes.length).toBe(initialLikes.length + 1);
+                    })
 
-                })
-        })
+            })
+    })
 
 
-        test('likeCount decremented upon unlike', async () => {
-            await readPost(3)
-                .then(res => {
-                    console.log(res.body)
-                    return res.body.data[0].likes
-                })
-                .then(async initialLikes => {
-                    await supertest(app)
-                        .delete(`/posts/3/like`)
-                        .set('Authorization', `Bearer debug`)
-                        .send()
-                        .then(res => {
-                            expect(res.body.error).toBeUndefined();
-                            console.log(initialLikes)
-                            expect(res.body.likes.length).toBe(initialLikes.length - 1);
-                        })
+    test('likeCount decremented upon unlike', async () => {
+        await readPost(3)
+            .then(res => {
+                return res.body.data[0].likes
+            })
+            .then(async initialLikes => {
+                await supertest(app)
+                    .delete(`/posts/3/like`)
+                    .set('Authorization', `Bearer debug`)
+                    .send()
+                    .then(res => {
+                        expect(res.body.error).toBeUndefined();
+                        expect(res.body.likes.length).toBe(initialLikes.length - 1);
+                    })
 
-                })
-        })
-        test('cannot double like post', async () => {
-            await supertest(app)
-                .post('/posts/2/like')
-                .set('Authorization', 'Bearer debug')
-                .send()
-                .then(res => {
-                    expect(res.status).toBe(400);
-                    expect(res.body.error).toBeDefined();
-                    expect(res.body.error).toContain('already liked');
-                })
-        })
+            })
+    })
+    test('cannot double like post', async () => {
+        await supertest(app)
+            .post('/posts/2/like')
+            .set('Authorization', 'Bearer debug')
+            .send()
+            .then(res => {
+                expect(res.status).toBe(400);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('already liked');
+            })
+    })
 
-        test('cannot double unlike post', async () => {
-            await supertest(app)
-                .delete('/posts/1/like')
-                .set('Authorization', 'Bearer debug')
-                .send()
-                .then(res => {
-                    expect(res.status).toBe(400);
-                    expect(res.body.error).toBeDefined();
-                    expect(res.body.error).toContain('not yet liked');
-                })
-        })
+    test('cannot double unlike post', async () => {
+        await supertest(app)
+            .delete('/posts/1/like')
+            .set('Authorization', 'Bearer debug')
+            .send()
+            .then(res => {
+                expect(res.status).toBe(400);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('not yet liked');
+            })
+    })
 
-    }
-)
+    test('cannot like a nonexistent post', async () => {
+        await supertest(app)
+            .post('/posts/0/like')
+            .set('Authorization', 'Bearer debug')
+            .send()
+            .then(res => {
+                expect(res.status).toBe(500);
+                expect(res.body.error).toBeDefined();
+            })
+    })
+
+})
+
+describe('comments',  () => {
+    test('comment must be at least 5 characters', async () => {
+        await supertest(app)
+            .post('/posts/1/comment')
+            .set('Authorization', 'Bearer debug')
+            .send({
+                data: {
+                    comment: 'lol'
+                }
+            })
+            .then(res => {
+                expect(res.status).toBe(400);
+                expect(res.body.error).toBeDefined();
+                expect(res.body.error).toContain('must be at least 5 characters');
+            })
+    })
+
+    test('comment inserted into database', async () => {
+        await supertest(app)
+            .post('/posts/1/comment')
+            .set('Authorization', 'Bearer debug')
+            .send({
+                data: {
+                    comment: 'this is a comment'
+                }
+            })
+
+    })
+})
+
 
