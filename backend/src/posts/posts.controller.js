@@ -99,7 +99,7 @@ function toggleLike(req, res, next) {
                     message: `You have ${liking ? 'already liked' : 'not yet liked'} this post.`
                 })
             } else {
-                return res.status(201).json({
+                return res.json({
                     likes: likes[0].likes
                 })
             }

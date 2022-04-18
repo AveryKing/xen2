@@ -141,8 +141,6 @@ const login = async (req, res, next) => {
             message: 'There was an error logging in'
         })
     }
-
-
 }
 
 module.exports = {

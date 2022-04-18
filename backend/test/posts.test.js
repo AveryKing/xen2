@@ -6,10 +6,10 @@ const service = require('../src/posts/posts.service');
 const app = makeTestApp('/posts', postsRouter);
 const knex = require('../src/db/connection')
 const testPostData = require("../src/db/config/testPostData");
+const {load} = require("nodemon/lib/rules");
 jest.setTimeout(100000);
 
 function makePost(auth = null, content = {}) {
-
     if (auth) {
         return supertest(app)
             .post('/posts')
@@ -164,7 +164,7 @@ describe('likes', () => {
         test('likeCount incremented upon like', async () => {
             await readPost(1)
                 .then(res => {
-                    return res.likes
+                    return res.body.data[0].likes
                 })
                 .then(async initialLikes => {
                     await supertest(app)
@@ -173,9 +173,7 @@ describe('likes', () => {
                         .send()
                         .then(res => {
                             expect(res.body.error).toBeUndefined();
-                            expect(res.status).toBe(200);
-                            expect(res.body.likes).toBe(1)
-                            expect(res.body.likes).toBe(initialLikes + 1);
+                            expect(res.body.likes.length).toBe(initialLikes.length + 1);
                         })
 
                 })
@@ -183,13 +181,46 @@ describe('likes', () => {
 
 
         test('likeCount decremented upon unlike', async () => {
+            await readPost(3)
+                .then(res => {
+                    console.log(res.body)
+                    return res.body.data[0].likes
+                })
+                .then(async initialLikes => {
+                    await supertest(app)
+                        .delete(`/posts/3/like`)
+                        .set('Authorization', `Bearer debug`)
+                        .send()
+                        .then(res => {
+                            expect(res.body.error).toBeUndefined();
+                            console.log(initialLikes)
+                            expect(res.body.likes.length).toBe(initialLikes.length - 1);
+                        })
+
+                })
         })
         test('cannot double like post', async () => {
-            expect(1).toBe(2);
+            await supertest(app)
+                .post('/posts/2/like')
+                .set('Authorization', 'Bearer debug')
+                .send()
+                .then(res => {
+                    expect(res.status).toBe(400);
+                    expect(res.body.error).toBeDefined();
+                    expect(res.body.error).toContain('already liked');
+                })
         })
 
         test('cannot double unlike post', async () => {
-            expect(1).toBe(2);
+            await supertest(app)
+                .delete('/posts/1/like')
+                .set('Authorization', 'Bearer debug')
+                .send()
+                .then(res => {
+                    expect(res.status).toBe(400);
+                    expect(res.body.error).toBeDefined();
+                    expect(res.body.error).toContain('not yet liked');
+                })
         })
 
     }

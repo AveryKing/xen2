@@ -30,7 +30,6 @@ async function toggleLike(liking, postId, userId) {
             }
         });
 
-
 }
 
 module.exports = {
