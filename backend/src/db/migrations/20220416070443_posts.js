@@ -5,7 +5,7 @@ exports.up = function(knex) {
         table.integer("creator").references("id").inTable("users").notNullable();
         table.string("title").notNullable();
         table.string("content").notNullable();
-        table.integer("likes").defaultTo(0);
+        table.specificType('likes', 'INT[]');
         table.timestamps(true, true);
     })
 };

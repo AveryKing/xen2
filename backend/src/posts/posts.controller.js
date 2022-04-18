@@ -1,5 +1,5 @@
 const service = require('./posts.service');
-const jwtAuth = require('../auth/protectRoute');
+const jwtAuth = require('../auth/jwtAuth');
 
 function doParamsExist(req, res, next) {
     const requiredProps = ['title', 'content'];
@@ -87,9 +87,61 @@ function read(req, res, next) {
         })
 }
 
+function like(req,res,next) {
+    const { postId } = req.params;
+    const { id } = req.user;
+    service.like(postId, id)
+        .then(likes => {
+            if(!likes) {
+                return next({
+                    status:400,
+                    message: 'You have already liked this post'
+                })
+            } else {
+                return res.status(201).json({
+                    likes:likes[0].likes
+                })
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return next({
+                status:500,
+                message: 'There was an error liking this post.'
+            })
+        })
+}
+
+function unlike(req,res,next) {
+    const { postId } = req.params;
+    const { id } = req.user;
+    service.unlike(postId, id)
+        .then(likes => {
+            if(!likes) {
+                return next({
+                    status:400,
+                    message: 'You have not yet liked this post'
+                })
+            } else {
+                return res.status(201).json({
+                    likes:likes[0].likes
+                })
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            return next({
+                status:500,
+                message: 'There was an error unliking this post.'
+            })
+        })
+}
+
 module.exports = {
     list,
     read,
+    like:[jwtAuth, like],
+    unlike:[jwtAuth, unlike],
     create: [
         jwtAuth,
         doParamsExist,

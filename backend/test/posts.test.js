@@ -9,6 +9,7 @@ const testPostData = require("../src/db/config/testPostData");
 jest.setTimeout(100000);
 
 function makePost(auth = null, content = {}) {
+
     if (auth) {
         return supertest(app)
             .post('/posts')
@@ -20,14 +21,13 @@ function makePost(auth = null, content = {}) {
             .set('Accept', 'application/json')
             .send(content);
     }
-
-
 }
 
 function readPost(postId) {
     return supertest(app)
         .get(`/posts/${postId}`);
 }
+
 
 describe('list', () => {
     test('should return all posts', async () => {
@@ -159,3 +159,39 @@ describe("create", () => {
             })
     })
 })
+
+describe('likes', () => {
+        test('likeCount incremented upon like', async () => {
+            await readPost(1)
+                .then(res => {
+                    return res.likes
+                })
+                .then(async initialLikes => {
+                    await supertest(app)
+                        .post(`/posts/2/like`)
+                        .set('Authorization', `Bearer debug`)
+                        .send()
+                        .then(res => {
+                            expect(res.body.error).toBeUndefined();
+                            expect(res.status).toBe(200);
+                            expect(res.body.likeCount).toBe(1)
+                            expect(res.body.likes).toBe(initialLikes + 1);
+                        })
+
+                })
+        })
+
+
+        test('likeCount decremented upon unlike', async () => {
+        })
+        test('cannot double like post', async () => {
+            expect(1).toBe(2);
+        })
+
+        test('cannot double unlike post', async () => {
+            expect(1).toBe(2);
+        })
+
+    }
+)
+
