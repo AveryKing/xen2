@@ -174,7 +174,7 @@ describe('likes', () => {
                         .then(res => {
                             expect(res.body.error).toBeUndefined();
                             expect(res.status).toBe(200);
-                            expect(res.body.likeCount).toBe(1)
+                            expect(res.body.likes).toBe(1)
                             expect(res.body.likes).toBe(initialLikes + 1);
                         })
 

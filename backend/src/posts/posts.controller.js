@@ -87,61 +87,38 @@ function read(req, res, next) {
         })
 }
 
-function like(req,res,next) {
-    const { postId } = req.params;
-    const { id } = req.user;
-    service.like(postId, id)
+function toggleLike(req, res, next) {
+    const {postId} = req.params;
+    const {id} = req.user;
+    const liking = req.method === 'POST';
+    service.toggleLike(liking,postId, id)
         .then(likes => {
-            if(!likes) {
+            if (!likes) {
                 return next({
-                    status:400,
-                    message: 'You have already liked this post'
+                    status: 400,
+                    message: `You have ${liking ? 'already liked' : 'not yet liked'} this post.`
                 })
             } else {
                 return res.status(201).json({
-                    likes:likes[0].likes
+                    likes: likes[0].likes
                 })
             }
         })
         .catch(err => {
             console.error(err);
             return next({
-                status:500,
-                message: 'There was an error liking this post.'
+                status: 500,
+                message: `There was an error ${liking ? 'liking' : 'unliking'} this post.`
             })
         })
+
 }
 
-function unlike(req,res,next) {
-    const { postId } = req.params;
-    const { id } = req.user;
-    service.unlike(postId, id)
-        .then(likes => {
-            if(!likes) {
-                return next({
-                    status:400,
-                    message: 'You have not yet liked this post'
-                })
-            } else {
-                return res.status(201).json({
-                    likes:likes[0].likes
-                })
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            return next({
-                status:500,
-                message: 'There was an error unliking this post.'
-            })
-        })
-}
 
 module.exports = {
     list,
     read,
-    like:[jwtAuth, like],
-    unlike:[jwtAuth, unlike],
+    toggleLike: [jwtAuth, toggleLike],
     create: [
         jwtAuth,
         doParamsExist,

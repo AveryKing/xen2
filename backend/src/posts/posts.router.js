@@ -12,8 +12,8 @@ router.route('/:postId')
     .all(methodNotAllowed);
 
 router.route('/:postId/like')
-    .post(controller.like)
-    .delete(controller.unlike)
+    .post(controller.toggleLike)
+    .delete(controller.toggleLike)
     .all(methodNotAllowed);
 
 module.exports = router;

@@ -13,43 +13,26 @@ function create(post) {
         .insert(post, 'id');
 }
 
-async function like(postId, userId) {
+async function toggleLike(liking, postId, userId) {
     return knex('posts')
         .select('likes')
         .where('id', '=', postId)
         .then(likes => {
-            if (likes[0].likes.includes(userId)) {
+            const oldLikes = likes[0].likes;
+            if (liking ? oldLikes.includes(userId) : !oldLikes.includes(userId)) {
                 return false;
             } else {
                 return knex('posts')
                     .where('id', '=', postId)
                     .update({
-                        likes: knex.raw('array_append(likes, ?)', userId)
+                        likes: knex.raw(`array_${liking ? 'append' : 'remove'}(likes, ?)`, userId)
                     }, 'likes');
             }
         });
 
 
 }
-
-async function unlike(postId, userId) {
-    return knex('posts')
-        .select('likes')
-        .where('id', '=', postId)
-        .then(likes => {
-            if (!likes[0].likes.includes(userId)) {
-                return false;
-            } else {
-                return knex('posts')
-                    .where('id', '=', postId)
-                    .update({
-                        likes: knex.raw('array_remove(likes, ?)', userId)
-                    }, 'likes');
-            }
-        });
-}
-
 
 module.exports = {
-    list, read, create, like,unlike
+    list, read, create, toggleLike
 }
