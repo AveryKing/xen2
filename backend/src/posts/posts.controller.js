@@ -86,9 +86,8 @@ function read(req, res, next) {
 
 function toggleLike(req, res, next) {
     const {postId} = req.params;
-    const {id} = req.user;
     const liking = req.method === 'POST';
-    service.toggleLike(liking,postId, id)
+    service.toggleLike(liking,postId, req.user.id)
         .then(likes => {
             if (!likes) {
                 return next({

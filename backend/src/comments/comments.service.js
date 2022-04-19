@@ -18,7 +18,9 @@ function read(commentId) {
     return knex('comments')
         .select('*')
         .where('id', commentId)
-        .then(comment => comment[0])
+        .then(comment => {
+            return comment.length ? comment[0] : false;
+        })
 }
 
 function remove(commentId) {
