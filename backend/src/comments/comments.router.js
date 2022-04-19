@@ -6,7 +6,6 @@ router.route('/:postId')
     .get(controller.list)
     .post(controller.create)
     .all(methodNotAllowed);
-
 router.route('/:postId/:commentId')
     .get(controller.read)
     .delete(controller.remove)
