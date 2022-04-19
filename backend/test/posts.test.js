@@ -234,34 +234,5 @@ describe('likes', () => {
 
 })
 
-describe('comments',  () => {
-    test('comment must be at least 5 characters', async () => {
-        await supertest(app)
-            .post('/posts/1/comment')
-            .set('Authorization', 'Bearer debug')
-            .send({
-                data: {
-                    comment: 'lol'
-                }
-            })
-            .then(res => {
-                expect(res.status).toBe(400);
-                expect(res.body.error).toBeDefined();
-                expect(res.body.error).toContain('must be at least 5 characters');
-            })
-    })
-
-    test('comment inserted into database', async () => {
-        await supertest(app)
-            .post('/posts/1/comment')
-            .set('Authorization', 'Bearer debug')
-            .send({
-                data: {
-                    comment: 'this is a comment'
-                }
-            })
-
-    })
-})
 
 
