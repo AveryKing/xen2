@@ -1,14 +1,12 @@
 module.exports = {
-    content: [
-        './pages/**/*.{js,ts,jsx,tsx}',
-        './components/**/*.{js,ts,jsx,tsx}',
-    ],
-    theme: {
-        extend: {},
+  content: ['./pages/**/*.js', './components/**/*.js'],
+  theme: {
+    extend: {
+      fontFamily:{
+        ubuntu: 'Ubuntu, sans-serif',
+        logo:'Merienda, cursive',
+      },
     },
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('tailwind-scrollbar-hide'),
-        require('tailwind-scrollbar')
-    ],
+  },
+  plugins: [],
 }
